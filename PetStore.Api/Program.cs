@@ -1,3 +1,4 @@
+using PetStore.Api.Helper;
 using PetStore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.InfrstructureConfig(builder.Configuration);
+builder.Services.AddApiRegistration(builder.Configuration);
 
 var app = builder.Build();
 

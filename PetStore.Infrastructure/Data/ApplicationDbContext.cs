@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PetStore.Core.Models;
-
-namespace PetStore.Infrastructure.Data
+﻿namespace PetStore.Infrastructure.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
     {

@@ -1,12 +1,4 @@
-﻿using PetStore.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Text.Json.Serialization;
 
 namespace PetStore.Core.Dtos.PetDto
 {
@@ -17,13 +9,15 @@ namespace PetStore.Core.Dtos.PetDto
         [Length(50, 250, ErrorMessage = ErrorMessages.MaxAndMinValidation)]
         public string Description { get; set; }
         public short Age { get; set; }
-        public IFormFile Image { get; set; }
+        public string Image { get; set; }
         public double Weight { get; set; }
         public Gender Gender { get; set; }
         public decimal Price { get; set; }
+        public string UserName => $"{FirstName} {LastName}";
 
-        [ForeignKey(nameof(User))]
-        public int UserId { get; set; }
-        public virtual User User { get; set; }
+        [JsonIgnore]
+        public string FirstName { get; set; }
+        [JsonIgnore]
+        public string LastName { get; set; }
     }
 }

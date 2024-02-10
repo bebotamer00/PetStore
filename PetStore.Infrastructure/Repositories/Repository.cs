@@ -1,22 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
-using PetStore.Core.Interfaces;
-using PetStore.Infrastructure.Data;
-
-namespace PetStore.Infrastructure.Repositories
+﻿namespace PetStore.Infrastructure.Repositories
 {
     public class Repository<T>(ApplicationDbContext context) : IRepository<T> where T : class
     {
         private readonly ApplicationDbContext _context = context;
 
-        public async Task<IEnumerable<T>> GetAll() => await _context.Set<T>().ToListAsync();
+        public async Task<IEnumerable<T>> GetAll() => await _context.Set<T>().AsNoTracking().ToListAsync();
 
-        public async Task<T> GetById(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
             if (id <= 0)
                 throw new ArgumentException("Id Not Found");
             var getById = await _context.Set<T>().FindAsync(id);
 
             return getById ?? throw new ArgumentException($"Entity with Id {id} not found");
+        }
+
+        public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _context.Set<T>();
+            foreach (var item in includes)
+                query = query.Include(item);
+
+            var result = await query.FirstOrDefaultAsync();
+
+            return result!;
         }
 
         public async Task<T> Add(T entity)
@@ -34,7 +41,7 @@ namespace PetStore.Infrastructure.Repositories
             if (id <= 0)
                 throw new ArgumentException("Id Not Found");
 
-            T existingEntity = await GetById(id) ?? throw new ArgumentException($"Entity with Id {id} not found");
+            T existingEntity = await GetByIdAsync(id) ?? throw new ArgumentException($"Entity with Id {id} not found");
 
             _context.Set<T>().Update(existingEntity);
             await _context.SaveChangesAsync();
@@ -47,10 +54,12 @@ namespace PetStore.Infrastructure.Repositories
             if (id <= 0)
                 throw new ArgumentException("Id Not Found");
 
-            T entityToDelete = await GetById(id) ?? throw new ArgumentException($"Entity with Id {id} not found");
+            T entityToDelete = await GetByIdAsync(id) ?? throw new ArgumentException($"Entity with Id {id} not found");
 
             _context.Set<T>().Remove(entityToDelete);
             await _context.SaveChangesAsync();
         }
+
+        public Task<int> Count() => _context.Set<T>().CountAsync();
     }
 }

@@ -1,11 +1,4 @@
-﻿using PetStore.Core.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PetStore.Core.Dtos
+﻿namespace PetStore.Core.Dtos.User
 {
     public class UserDto
     {
@@ -20,6 +13,6 @@ namespace PetStore.Core.Dtos
 
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        public virtual ICollection<Pet>? Pets { get; set; } = new HashSet<Pet>();
+        public IList<Pet> PetName { get; set; }
     }
 }

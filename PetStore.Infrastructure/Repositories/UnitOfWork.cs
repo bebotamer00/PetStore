@@ -1,16 +1,18 @@
-﻿using PetStore.Core.Interfaces;
-using PetStore.Infrastructure.Data;
+﻿using AutoMapper;
 
 namespace PetStore.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly ApplicationDbContext _context;
-        public UnitOfWork(ApplicationDbContext context)
+        private readonly IMapper _mapper;
+
+        public UnitOfWork(ApplicationDbContext context, IMapper mapper)
         {
             _context = context;
-            UserRepository = new UserRepository(_context);
-            PetRepository = new PetRepository(_context);
+            _mapper = mapper;
+            UserRepository = new UserRepository(_context, _mapper);
+            PetRepository = new PetRepository(_context, _mapper);
         }
 
         public IUserRepository UserRepository { get; }

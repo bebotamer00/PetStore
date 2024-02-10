@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using PetStore.Core.Models;
 
 namespace PetStore.Core.Dtos.PetDto
 {
