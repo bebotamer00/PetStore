@@ -16,7 +16,31 @@
             if (getAllUsers is null)
                 return NotFound();
 
-            return Ok(getAllUsers);
+            var model = _mapper.Map<IEnumerable<UserDto>>(getAllUsers);
+
+            return Ok(model);
+        }
+
+        [HttpGet("PetsByUser/{userId:int}")]
+        public async Task<IActionResult> GetPetsByUser(int userId)
+        {
+            var petsByUser = await _unitOfWork.UserRepository.GetPetsByUserAsync(userId);
+
+            if (petsByUser is null || !petsByUser.Any())
+                return NotFound();
+
+            return Ok(petsByUser);
+        }
+        
+        [HttpGet("PetsByUserName/{userName}")]
+        public async Task<IActionResult> GetPetsByUserName(string userName)
+        {
+            var petsByUser = await _unitOfWork.UserRepository.GetPetsByUserNameAsync(userName);
+
+            if (petsByUser is null || !petsByUser.Any())
+                return NotFound();
+
+            return Ok(petsByUser);
         }
 
         [HttpGet("Details/{id:int}")]

@@ -1,4 +1,6 @@
-﻿namespace PetStore.Core.Dtos.User
+﻿using PetStore.Core.Dtos.PetDto;
+
+namespace PetStore.Core.Dtos.User
 {
     public class UserDto
     {
@@ -13,6 +15,7 @@
 
         [DataType(DataType.Password)]
         public string Password { get; set; }
-        public IList<Pet> PetName { get; set; }
+
+        //public IEnumerable<DisplayPets> Pets { get; set; }
     }
 }

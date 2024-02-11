@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using PetStore.Core.Dtos.UserDto;
 
 namespace PetStore.Infrastructure.Repositories
 {
@@ -44,6 +45,35 @@ namespace PetStore.Infrastructure.Repositories
 
             user.Password = newPassword;
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<DisplayPetsByUser>> GetPetsByUserAsync(int userId)
+        {
+            var userPets = await _context.Users
+                .Include(u => u.Pets)
+                .Where(u => u.Id == userId)
+                .AsNoTracking()
+                .ToListAsync();
+
+            var result = _mapper.Map<IEnumerable<DisplayPetsByUser>>(userPets);
+
+            return result;
+        }
+
+        public async Task<IEnumerable<DisplayPetsByUser>> GetPetsByUserNameAsync(string userName)
+        {
+            if (userName is null)
+                throw new ArgumentException("This Name Not Found.");
+
+            var pets = await _context.Users
+                .Include(u => u.Pets)
+                .Where(u => (u.FirstName + " " + u.LastName).Contains(userName))
+                .AsNoTracking()
+                .ToListAsync();
+
+            var result = _mapper.Map<IEnumerable<DisplayPetsByUser>>(pets);
+
+            return result;
         }
     }
 }

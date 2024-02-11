@@ -1,6 +1,4 @@
-﻿using PetStore.Core.Dtos.User;
-
-namespace PetStore.Core.Interfaces
+﻿namespace PetStore.Core.Interfaces
 {
     public interface IUserRepository : IRepository<User>
     {
@@ -8,5 +6,7 @@ namespace PetStore.Core.Interfaces
         Task<User> GetUserByEmail(string email);
         Task<IEnumerable<User>> SearchByName(string searchTerm);
         Task UpdatePassword(int id, string newPassword);
+        Task<IEnumerable<DisplayPetsByUser>> GetPetsByUserAsync(int userId);
+        Task<IEnumerable<DisplayPetsByUser>> GetPetsByUserNameAsync(string userName);
     }
 }

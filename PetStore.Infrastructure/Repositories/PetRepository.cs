@@ -44,6 +44,7 @@ namespace PetStore.Infrastructure.Repositories
 
             await Add(pet);
         }
+
         public async Task UpdatePetWithImage(UpdatePetDto updatePetDto)
         {
             var existingPet = await _context.Pets
@@ -73,6 +74,27 @@ namespace PetStore.Infrastructure.Repositories
             await Update(existingPet.Id, existingPet);
         }
 
+        public async Task<bool> DeleteAsyncWithImage(int id)
+        {
+            var pet = await _context.Pets.FindAsync(id);
+
+            if (pet is null)
+                return false;
+
+            if (!string.IsNullOrEmpty(pet.Image))
+            {
+                string imagePath = Path.Combine(_uploadDirectory, pet.Image);
+
+                if (File.Exists(imagePath))
+                    File.Delete(imagePath);
+            }
+
+            _context.Pets.Remove(pet);
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
         private static string GetUniqueFileName(string fileName)
         {
             fileName = Path.GetFileName(fileName);
@@ -83,5 +105,8 @@ namespace PetStore.Infrastructure.Repositories
                 Path.GetExtension(fileName));
         }
 
+        public async Task<IEnumerable<Pet>> SearchPetsAsync(string searchTerm) => await _context.Pets
+            .Where(p => EF.Functions.Like(p.Name, $"%{searchTerm}%"))
+            .ToListAsync();
     }
 }

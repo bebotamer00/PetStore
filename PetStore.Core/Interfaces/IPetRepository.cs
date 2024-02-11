@@ -7,5 +7,7 @@ namespace PetStore.Core.Interfaces
         Task<IEnumerable<DisplayPets>> GetAllAsync();
         Task AddPetWithImage(CreatePetDto createPetDto);
         Task UpdatePetWithImage(UpdatePetDto updatePetDto);
+        Task<bool> DeleteAsyncWithImage(int id);
+        Task<IEnumerable<Pet>> SearchPetsAsync(string searchTerm);
     }
 }

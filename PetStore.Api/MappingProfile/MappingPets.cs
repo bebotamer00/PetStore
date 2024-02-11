@@ -1,6 +1,4 @@
-﻿
-
-using PetStore.Core.Dtos.PetDto;
+﻿using PetStore.Core.Dtos.PetDto;
 
 namespace PetStore.Api.MappingProfile
 {
@@ -13,7 +11,11 @@ namespace PetStore.Api.MappingProfile
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName))
             .ReverseMap();
 
-            CreateMap<Pet, CreatePetDto>().ReverseMap();
+            CreateMap<Pet, DisplayPetsByUserDto>()
+            .ReverseMap();
+
+            CreateMap<Pet, CreatePetDto>()
+                .ReverseMap();
 
             CreateMap<Pet, UpdatePetDto>().ReverseMap();
         }

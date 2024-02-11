@@ -1,4 +1,6 @@
-﻿namespace PetStore.Core.Models
+﻿using System.Text.Json.Serialization;
+
+namespace PetStore.Core.Models
 {
     public class User
     {
@@ -16,7 +18,6 @@
         [DataType(DataType.Password)]
         public string Password { get; set; }
         public DateTime CreatedDate { get; set; }
-
         public virtual ICollection<Pet> Pets { get; set; } = new HashSet<Pet>();
     }
 }

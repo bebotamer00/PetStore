@@ -60,14 +60,25 @@ namespace PetStore.Api.Controllers
         [HttpDelete("DeletePet/{id:int}")]
         public async Task<IActionResult> DeletePet(int id)
         {
-            var pet = _unitOfWork.PetRepository.GetByIdAsync(id);
+            var deletedPet = await _unitOfWork.PetRepository.DeleteAsyncWithImage(id);
 
-            if (pet is null)
+            if (!deletedPet)
                 return NotFound();
 
-            await _unitOfWork.PetRepository.Delete(id);
+            return Ok("Deleted Sucessfully");
+        }
 
-            return Ok(pet);
+        [HttpGet("SearchPets")]
+        public async Task<IActionResult> SearchPets([FromQuery] string searchTerm)
+        {
+            var pets = await _unitOfWork.PetRepository.SearchPetsAsync(searchTerm);
+
+            if (pets is null || !pets.Any())
+                return NotFound();
+
+            var model = _mapper.Map<IEnumerable<DisplayPets>>(pets);
+
+            return Ok(model);
         }
     }
 }
