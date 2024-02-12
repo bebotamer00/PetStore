@@ -1,4 +1,6 @@
-﻿namespace PetStore.Core.Models
+﻿using PetStore.Core.Dtos.PetDto;
+
+namespace PetStore.Core.Models
 {
     public class Pet
     {
@@ -8,7 +10,7 @@
         [Length(50, 250, ErrorMessage = ErrorMessages.MaxAndMinValidation)]
         public string Description { get; set; }
         public short Age { get; set; }
-        public string Image { get; set; }
+        public List<PetImage> Images { get; set; } = [];
         public double Weight { get; set; }
         public Gender Gender { get; set; }
         public decimal Price { get; set; }

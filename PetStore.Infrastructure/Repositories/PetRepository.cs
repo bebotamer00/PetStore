@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using PetStore.Core.Dtos.PetDto;
 
 namespace PetStore.Infrastructure.Repositories
@@ -31,44 +32,56 @@ namespace PetStore.Infrastructure.Repositories
             return result;
         }
 
-        public async Task AddPetWithImage(CreatePetDto createPetDto)
+        public async Task AddPetWithImage(CreatePetDto createPetDto, List<IFormFile> images)
         {
-            string uniqueFileName = GetUniqueFileName(createPetDto.Image.FileName);
-            string imagePath = Path.Combine(_uploadDirectory, uniqueFileName);
+            string[] uniqueFileName = images.Select(image => GetUniqueFileName(image.FileName)).ToArray();
+            List<PetImage> petImages = [];
 
-            FileStream fileStream = new(imagePath, FileMode.Create);
-            await createPetDto.Image.CopyToAsync(fileStream);
+            for (int i = 0; i < images.Count; i++)
+            {
+                string imagePath = Path.Combine(_uploadDirectory, uniqueFileName[i]);
+                FileStream fileStream = new(imagePath, FileMode.Create);
+                await images[i].CopyToAsync(fileStream);
+
+                petImages.Add(new PetImage { ImageUrl = uniqueFileName[i] });
+            }
 
             var pet = _mapper.Map<Pet>(createPetDto);
-            pet.Image = uniqueFileName;
+            pet.Images = petImages;
 
             await Add(pet);
         }
 
-        public async Task UpdatePetWithImage(UpdatePetDto updatePetDto)
+        public async Task UpdatePetWithImage(UpdatePetDto updatePetDto, List<IFormFile> newImages)
         {
             var existingPet = await _context.Pets
+                .Include(pet => pet.Images)
                 .FirstOrDefaultAsync(p => p.Id == updatePetDto.Id) ??
                 throw new InvalidOperationException($"Pet with ID {updatePetDto.Id} not found.");
 
 
-            if (updatePetDto.NewImage is null)
+            if (updatePetDto.NewImage is null || newImages.Count is 0)
                 throw new InvalidOperationException($"Image Not Found.");
 
-            string uniqueFileName = GetUniqueFileName(updatePetDto.NewImage.FileName);
-            string newImagePath = Path.Combine(_uploadDirectory, uniqueFileName);
+            List<PetImage> petImages = [];
 
-            FileStream newImageStream = new(newImagePath, FileMode.Create);
-            await updatePetDto.NewImage.CopyToAsync(newImageStream);
-
-            if (!string.IsNullOrEmpty(existingPet.Image))
+            foreach (var newImage in newImages)
             {
-                string oldImagePath = Path.Combine(_uploadDirectory, existingPet.Image);
+                string uniqueFileName = GetUniqueFileName(updatePetDto.NewImage.FileName);
+                string newImagePath = Path.Combine(_uploadDirectory, uniqueFileName);
+                FileStream newImageStream = new(newImagePath, FileMode.Create);
+                await newImage.CopyToAsync(newImageStream);
+                petImages.Add(new PetImage { ImageUrl = uniqueFileName });
+            }
+
+            foreach (var oldImage in existingPet.Images)
+            {
+                string oldImagePath = Path.Combine(_uploadDirectory, oldImage.ImageUrl);
                 if (File.Exists(oldImagePath))
                     File.Delete(oldImagePath);
             }
 
-            existingPet.Image = uniqueFileName;
+            existingPet.Images = petImages;
             _mapper.Map(updatePetDto, existingPet);
 
             await Update(existingPet.Id, existingPet);
@@ -76,15 +89,16 @@ namespace PetStore.Infrastructure.Repositories
 
         public async Task<bool> DeleteAsyncWithImage(int id)
         {
-            var pet = await _context.Pets.FindAsync(id);
+            var pet = await _context.Pets
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
 
             if (pet is null)
                 return false;
 
-            if (!string.IsNullOrEmpty(pet.Image))
+            foreach (var image in pet.Images)
             {
-                string imagePath = Path.Combine(_uploadDirectory, pet.Image);
-
+                string imagePath = Path.Combine(_uploadDirectory, image.ImageUrl);
                 if (File.Exists(imagePath))
                     File.Delete(imagePath);
             }

@@ -1,4 +1,5 @@
 ﻿using PetStore.Core.Dtos.PetDto;
+using System.Text.Json.Serialization;
 
 namespace PetStore.Api.Controllers
 {
@@ -41,18 +42,21 @@ namespace PetStore.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            await _unitOfWork.PetRepository.AddPetWithImage(createPetDto);
+            List<IFormFile> images = createPetDto.Images;
+
+            await _unitOfWork.PetRepository.AddPetWithImage(createPetDto, images);
 
             return Ok(createPetDto);
         }
 
         [HttpPut("UpdatePet")]
-        public async Task<IActionResult> UpdatePet([FromForm] UpdatePetDto updatePetDto)
+        public async Task<IActionResult> UpdatePet([FromForm] UpdatePetDto updatePetDto, 
+            [FromForm(Name = "newImages")] List<IFormFile> newImages)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            await _unitOfWork.PetRepository.UpdatePetWithImage(updatePetDto);
+            await _unitOfWork.PetRepository.UpdatePetWithImage(updatePetDto, newImages);
 
             return Ok(updatePetDto);
         }

@@ -18,6 +18,10 @@ namespace PetStore.Api.MappingProfile
                 .ReverseMap();
 
             CreateMap<Pet, UpdatePetDto>().ReverseMap();
+
+            CreateMap<IFormFile, PetImage>()
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.FileName))
+            .ReverseMap();
         }
     }
 }
