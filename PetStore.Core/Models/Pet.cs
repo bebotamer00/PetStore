@@ -1,6 +1,4 @@
-﻿using PetStore.Core.Dtos.PetDto;
-
-namespace PetStore.Core.Models
+﻿namespace PetStore.Core.Models
 {
     public class Pet
     {
@@ -21,7 +19,7 @@ namespace PetStore.Core.Models
 
     public enum Gender
     {
-        Male,
+        Male = 1,
         Female
     }
 }

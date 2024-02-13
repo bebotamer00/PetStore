@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace PetStore.Core.Dtos.PetDto
+﻿namespace PetStore.Core.Models
 {
     public class PetImage
     {

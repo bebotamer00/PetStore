@@ -15,13 +15,13 @@
             return getById ?? throw new ArgumentException($"Entity with Id {id} not found");
         }
 
-        public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
+        public async Task<T> GetByIdAsync(Expression<Func<T, bool>> match, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _context.Set<T>();
             foreach (var item in includes)
                 query = query.Include(item);
 
-            var result = await query.FirstOrDefaultAsync();
+            var result = await query.SingleOrDefaultAsync(match);
 
             return result!;
         }

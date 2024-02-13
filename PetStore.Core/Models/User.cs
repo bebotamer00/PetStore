@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace PetStore.Core.Models
+﻿namespace PetStore.Core.Models
 {
     public class User
     {

@@ -20,13 +20,36 @@ namespace PetStore.Infrastructure.Repositories
                 Directory.CreateDirectory(_uploadDirectory);
         }
 
-        public async Task<IEnumerable<DisplayPets>> GetAllAsync()
+        public async Task<IEnumerable<DisplayPets>> GetAllAsync(int? pageNumber, int? pageSize, string? searchName, Gender? gender)
         {
-            var getAllPets = await _context.Pets
+            // Set default values for pageNumber and pageSize if they are not provided
+            pageNumber ??= 1;
+            pageSize ??= 10;
+
+            // Calculate the number of items to skip based on the pageNumber and pageSize
+            var itemsToSkip = (pageNumber.Value - 1) * pageSize.Value;
+
+            // Start building the query
+            var query = _context.Pets
                 .Include(u => u.User)
-                .AsNoTracking()
+                .Include(p => p.Images)
+                .AsNoTracking();
+
+            // Apply gender filter if provided
+            if (gender.HasValue)
+                query = query.Where(p => p.Gender == gender.Value);
+
+
+            // search by name
+            query = query.Where(p => EF.Functions.Like(p.Name, $"%{searchName}%"));
+
+            // Continue building the query with pagination
+            var getAllPets = await query
+                .Skip(itemsToSkip)
+                .Take(pageSize.Value)
                 .ToListAsync();
 
+            // Map the result to DisplayPets
             var result = _mapper.Map<IEnumerable<DisplayPets>>(getAllPets);
 
             return result;
@@ -118,9 +141,5 @@ namespace PetStore.Infrastructure.Repositories
                 Guid.NewGuid().ToString().AsSpan(0, 4),
                 Path.GetExtension(fileName));
         }
-
-        public async Task<IEnumerable<Pet>> SearchPetsAsync(string searchTerm) => await _context.Pets
-            .Where(p => EF.Functions.Like(p.Name, $"%{searchTerm}%"))
-            .ToListAsync();
     }
 }

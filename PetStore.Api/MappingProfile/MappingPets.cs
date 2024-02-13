@@ -9,10 +9,12 @@ namespace PetStore.Api.MappingProfile
             CreateMap<Pet, DisplayPets>()
             .ForMember(dest => dest.FirstName, opt => opt.MapFrom(src => src.User.FirstName))
             .ForMember(dest => dest.LastName, opt => opt.MapFrom(src => src.User.LastName))
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
             .ReverseMap();
 
             CreateMap<Pet, DisplayPetsByUserDto>()
-            .ReverseMap();
+              .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+              .ReverseMap();
 
             CreateMap<Pet, CreatePetDto>()
                 .ReverseMap();
@@ -22,6 +24,8 @@ namespace PetStore.Api.MappingProfile
             CreateMap<IFormFile, PetImage>()
             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.FileName))
             .ReverseMap();
+
+            CreateMap<PetImage, PetImageDto>().ReverseMap();
         }
     }
 }

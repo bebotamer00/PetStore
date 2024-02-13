@@ -8,30 +8,37 @@ namespace PetStore.Infrastructure.Repositories
         private readonly ApplicationDbContext _context = context;
         private readonly IMapper _mapper = mapper;
 
-        public async Task<IEnumerable<UserDto>> GetAllAsync()
+        public async Task<IEnumerable<DisplayPetsByUser>> GetAllAsync(string? searchUserName)
         {
-            var getAllUsers = await _context.Users
+            IQueryable<User> usersQuery = _context.Users
                 .Include(u => u.Pets)
-                .AsNoTracking()
-                .ToListAsync();
+                .ThenInclude(p => p.Images)
+                .AsNoTracking();
 
-            var result = _mapper.Map<IEnumerable<UserDto>>(getAllUsers);
+            if (!string.IsNullOrEmpty(searchUserName))
+                usersQuery = usersQuery.Where(u => u.FirstName.Contains(searchUserName) || u.LastName.Contains(searchUserName));
+
+
+            var getAllUsers = await usersQuery.ToListAsync();
+
+            var result = _mapper.Map<IEnumerable<DisplayPetsByUser>>(getAllUsers);
 
             return result;
         }
 
-        public async Task<User> GetUserByEmail(string email)
+        public async Task<DisplayPetsByUser> GetUserByEmail(string email)
         {
             ArgumentNullException.ThrowIfNull(email);
 
-            var getUserByEmail = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var getUserByEmail = await _context.Users
+                .Include(u => u.Pets)
+                .ThenInclude(p => p.Images)
+                .FirstOrDefaultAsync(u => u.Email == email);
 
-            return getUserByEmail!;
+            var result = _mapper.Map<DisplayPetsByUser>(getUserByEmail);
+
+            return result;
         }
-
-        public async Task<IEnumerable<User>> SearchByName(string searchTerm) => await _context.Users
-           .Where(u => u.FirstName.Contains(searchTerm) || u.LastName.Contains(searchTerm))
-           .ToListAsync();
 
         public async Task UpdatePassword(int id, string newPassword)
         {
@@ -51,6 +58,7 @@ namespace PetStore.Infrastructure.Repositories
         {
             var userPets = await _context.Users
                 .Include(u => u.Pets)
+                .ThenInclude(p => p.Images)
                 .Where(u => u.Id == userId)
                 .AsNoTracking()
                 .ToListAsync();

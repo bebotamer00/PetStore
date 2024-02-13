@@ -9,33 +9,20 @@
         private readonly IMapper _mapper = mapper;
 
         [HttpGet("AllUsers")]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(string? searchUserName)
         {
-            var getAllUsers = await _unitOfWork.UserRepository.GetAll();
+            var getAllUsers = await _unitOfWork.UserRepository.GetAllAsync(searchUserName);
 
             if (getAllUsers is null)
                 return NotFound();
 
-            var model = _mapper.Map<IEnumerable<UserDto>>(getAllUsers);
-
-            return Ok(model);
+            return Ok(getAllUsers);
         }
 
         [HttpGet("PetsByUser/{userId:int}")]
         public async Task<IActionResult> GetPetsByUser(int userId)
         {
             var petsByUser = await _unitOfWork.UserRepository.GetPetsByUserAsync(userId);
-
-            if (petsByUser is null || !petsByUser.Any())
-                return NotFound();
-
-            return Ok(petsByUser);
-        }
-        
-        [HttpGet("PetsByUserName/{userName}")]
-        public async Task<IActionResult> GetPetsByUserName(string userName)
-        {
-            var petsByUser = await _unitOfWork.UserRepository.GetPetsByUserNameAsync(userName);
 
             if (petsByUser is null || !petsByUser.Any())
                 return NotFound();
@@ -69,7 +56,7 @@
         }
 
         [HttpPost("AddNewUser")]
-        public async Task<IActionResult> AddNewUser([FromForm] UserDto userDto)
+        public async Task<IActionResult> AddNewUser([FromForm] DisplayPetsByUserDto userDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
@@ -77,7 +64,7 @@
             if (userDto is null)
                 return BadRequest();
 
-            var model = _mapper.Map<UserDto, User>(userDto);
+            var model = _mapper.Map<DisplayPetsByUserDto, User>(userDto);
 
             await _unitOfWork.UserRepository.Add(model);
 
@@ -85,7 +72,7 @@
         }
 
         [HttpPut("UpdateUser/{id:int}")]
-        public async Task<IActionResult> UpdateUser(int id, [FromForm] UserDto userDto)
+        public async Task<IActionResult> UpdateUser(int id, [FromForm] DisplayPetsByUserDto userDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest();

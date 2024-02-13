@@ -6,7 +6,7 @@ namespace PetStore.Core.Interfaces
     {
         Task<IEnumerable<T>> GetAll();
         Task<T> GetByIdAsync(int id);
-        Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes);
+        Task<T> GetByIdAsync(Expression<Func<T, bool>> match, params Expression<Func<T, object>>[] includes);
         Task<T> Add(T entity);
         Task<T> Update(int id, T entity);
         Task Delete(int id);

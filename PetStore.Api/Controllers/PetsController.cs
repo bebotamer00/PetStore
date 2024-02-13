@@ -1,5 +1,4 @@
 ﻿using PetStore.Core.Dtos.PetDto;
-using System.Text.Json.Serialization;
 
 namespace PetStore.Api.Controllers
 {
@@ -11,9 +10,9 @@ namespace PetStore.Api.Controllers
         private readonly IMapper _mapper = mapper;
 
         [HttpGet("AllPets")]
-        public async Task<IActionResult> GetAllPets()
+        public async Task<IActionResult> GetAllPets(int? pageNumber, int? pageSize, string? searchName, Gender? gender)
         {
-            var pets = await _unitOfWork.PetRepository.GetAllAsync();
+            var pets = await _unitOfWork.PetRepository.GetAllAsync(pageNumber, pageSize, searchName, gender);
 
             if (pets is null)
                 return NotFound();
@@ -26,7 +25,7 @@ namespace PetStore.Api.Controllers
         [HttpGet("Details/{id:int}")]
         public async Task<IActionResult> GetPetById(int id)
         {
-            var pet = await _unitOfWork.PetRepository.GetByIdAsync(id, p => p.User);
+            var pet = await _unitOfWork.PetRepository.GetByIdAsync(p => p.Id == id, p => p.User, p => p.Images);
 
             if (pet is null)
                 return NotFound();
@@ -50,7 +49,7 @@ namespace PetStore.Api.Controllers
         }
 
         [HttpPut("UpdatePet")]
-        public async Task<IActionResult> UpdatePet([FromForm] UpdatePetDto updatePetDto, 
+        public async Task<IActionResult> UpdatePet([FromForm] UpdatePetDto updatePetDto,
             [FromForm(Name = "newImages")] List<IFormFile> newImages)
         {
             if (!ModelState.IsValid)
@@ -70,19 +69,6 @@ namespace PetStore.Api.Controllers
                 return NotFound();
 
             return Ok("Deleted Sucessfully");
-        }
-
-        [HttpGet("SearchPets")]
-        public async Task<IActionResult> SearchPets([FromQuery] string searchTerm)
-        {
-            var pets = await _unitOfWork.PetRepository.SearchPetsAsync(searchTerm);
-
-            if (pets is null || !pets.Any())
-                return NotFound();
-
-            var model = _mapper.Map<IEnumerable<DisplayPets>>(pets);
-
-            return Ok(model);
         }
     }
 }
