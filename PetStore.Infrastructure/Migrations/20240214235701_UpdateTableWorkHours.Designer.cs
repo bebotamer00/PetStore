@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PetStore.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using PetStore.Infrastructure.Data;
 namespace PetStore.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240214235701_UpdateTableWorkHours")]
+    partial class UpdateTableWorkHours
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,39 +48,6 @@ namespace PetStore.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Addresses");
-                });
-
-            modelBuilder.Entity("PetStore.Core.Models.Feedback", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Comment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("VetId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("VetId");
-
-                    b.ToTable("Feedbacks");
                 });
 
             modelBuilder.Entity("PetStore.Core.Models.Pet", b =>
@@ -242,13 +212,11 @@ namespace PetStore.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("EndTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
 
-                    b.Property<string>("StartTime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.Property<int>("VetId")
                         .HasColumnType("int");
@@ -264,23 +232,6 @@ namespace PetStore.Infrastructure.Migrations
                     b.ToTable("WorkingHours");
                 });
 
-            modelBuilder.Entity("PetStore.Core.Models.Feedback", b =>
-                {
-                    b.HasOne("PetStore.Core.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.HasOne("PetStore.Core.Models.Vet", "Vet")
-                        .WithMany("Feedbacks")
-                        .HasForeignKey("VetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-
-                    b.Navigation("Vet");
-                });
-
             modelBuilder.Entity("PetStore.Core.Models.Pet", b =>
                 {
                     b.HasOne("PetStore.Core.Models.User", "User")
@@ -290,7 +241,7 @@ namespace PetStore.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("PetStore.Core.Models.Vet", "Vet")
-                        .WithMany()
+                        .WithMany("Pets")
                         .HasForeignKey("VetId");
 
                     b.Navigation("User");
@@ -370,7 +321,7 @@ namespace PetStore.Infrastructure.Migrations
 
             modelBuilder.Entity("PetStore.Core.Models.Vet", b =>
                 {
-                    b.Navigation("Feedbacks");
+                    b.Navigation("Pets");
 
                     b.Navigation("UserVets");
 

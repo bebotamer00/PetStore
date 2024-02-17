@@ -1,4 +1,6 @@
-﻿namespace PetStore.Core.Interfaces
+﻿using PetStore.Core.Dtos.UserDto;
+
+namespace PetStore.Core.Interfaces
 {
     public interface IUserRepository : IRepository<User>
     {

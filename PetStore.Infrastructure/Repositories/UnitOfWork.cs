@@ -13,9 +13,11 @@ namespace PetStore.Infrastructure.Repositories
             _mapper = mapper;
             UserRepository = new UserRepository(_context, _mapper);
             PetRepository = new PetRepository(_context, _mapper);
+            VetRepository = new VetRepository(_context, _mapper);
         }
 
         public IUserRepository UserRepository { get; }
         public IPetRepository PetRepository { get; }
+        public IVetRepository VetRepository { get; }
     }
 }

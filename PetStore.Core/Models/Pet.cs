@@ -15,6 +15,9 @@
 
         public int UserId { get; set; }
         public virtual User User { get; set; }
+
+        public int? VetId { get; set; }
+        public virtual Vet Vet { get; set; }
     }
 
     public enum Gender

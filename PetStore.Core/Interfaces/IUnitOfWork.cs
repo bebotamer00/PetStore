@@ -4,5 +4,6 @@
     {
         public IUserRepository UserRepository { get; }
         public IPetRepository PetRepository { get; }
+        public IVetRepository VetRepository { get; }
     }
 }
